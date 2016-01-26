@@ -1,0 +1,33 @@
+myfunction <- function(x) {#
+		y <- rnorm(100)#
+		mean(y)#
+}
+myfunction()
+myfunction(100)
+myfunction(100)
+myfunction(100)
+myfunction(100)
+myfunction(100)
+myfunction(100)
+myfunction(100)
+myfunction(100)
+myfunction(100)
+myfunction(100)
+myfunction(100)
+myfunction(100)
+myfunction(100)
+myfunction(100)
+myfunction(100)
+myfunction(100)
+myfunction(100)
+source("function.r")
+myfunction()
+x <- 1
+print(x)
+x
+msg <- "hello"
+msg
+x <-
+c
+x <- ## Incomplete
+d
