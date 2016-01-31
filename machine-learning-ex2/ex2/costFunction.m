@@ -19,6 +19,13 @@ grad = zeros(size(theta));
 %
 % Note: grad should have the same dimensions as theta
 %
+model = sigmoid(theta'*X')';
+J = 1/m * sum(-1.0*y.*log(model)-(1.0-y).*log(1.0-model));
+
+for i=1:size(theta)
+    grad(i) = 1/m * sum( (model-y).*X(:,i));
+    
+    
 
 
 

@@ -18,8 +18,22 @@ grad = zeros(size(theta));
 %               derivatives of the cost w.r.t. each parameter in theta
 
 
+model = sigmoid(theta'*X')';
 
+sumSquareTheta = 0;
+%We starte at 2 since theta0 (1 here with indexing) isn't Regularlized
+for i = 2:size(theta)
+    sumSquareTheta = sumSquareTheta + theta(i)^2;
+end
 
+regTerm = lambda / (2*m) * sumSquareTheta;
+
+J = 1/m * sum(-1.0*y.*log(model)-(1.0-y).*log(1.0-model)) + regTerm;
+
+grad(1) = 1/m * sum( (model-y).*X(:,1));
+for i = 2:size(theta)
+    grad(i) = 1.0 / m * sum( (model-y).*X(:,i)) + lambda/m*theta(i);
+end
 
 
 % =============================================================

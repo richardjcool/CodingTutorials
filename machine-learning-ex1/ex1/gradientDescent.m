@@ -16,8 +16,22 @@ for iter = 1:num_iters
     % Hint: While debugging, it can be useful to print out the values
     %       of the cost function (computeCost) and gradient here.
     %
+    
+    nTheta = length(theta);
+    thetaNew = zeros(nTheta, 1);
+    
+    for j = 1:nTheta
+       
+        mdiff = X * theta-y; 
+        newTheta(j) = theta(j) - alpha/m * (mdiff' * X(:,j));
 
-
+    end
+    
+    % Now, assign the thetas
+    for j = 1:nTheta
+        theta(j) = newTheta(j);
+    end
+    
 
 
 
@@ -27,7 +41,7 @@ for iter = 1:num_iters
 
     % Save the cost J in every iteration    
     J_history(iter) = computeCost(X, y, theta);
-
+    
 end
 
 end
