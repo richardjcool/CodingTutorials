@@ -14,25 +14,28 @@ public class Deque<Item> implements Iterable<Item>{
 
   /* Since the requirements for this assignment are constant worst case time
      We can't use array resizing. So we'll use a linked list. Let's set that up. */
-  private Node first, last;
+  private Node<Item> first, last, head, tail;
   private int N = 0;
 
-  private class Node
+  private class Node<Item>
   {
     Item item;
-    Node next;
+    Node<Item> next;
+    Node<Item> prev;
   }
 
   public Deque() // Construct an empty deque
   {
-    first = null;
-    last = null;
+    head = new Node<Item>(); //This is like a "phantom" head tracer above first
+    tail = new Node<Item>(); //This keeps track of where last would be.
+    head.next = tail;
+    tail.prev = head;
     N = 0;
   }
 
   public boolean isEmpty() // is the deque empty?
   {
-    return first == null;
+    return N == 0;
   }
 
   public int size() // return the number of items on the deque
@@ -44,14 +47,16 @@ public class Deque<Item> implements Iterable<Item>{
   public void addFirst(Item item) // add the item to the front
   {
     if (item == null) throw new java.lang.NullPointerException();
-    boolean wasEmpty;
-    wasEmpty = isEmpty();
-    Node oldfirst = first;
-    first = new Node();
-    first.item = item;
-    first.next = oldfirst;
 
-    if (wasEmpty) last = first;
+    Node<Item> oldFirst = head.next;
+    Node<Item> first = new Node<Item>();
+    first.item = item;
+    first.prev = head;
+    first.next = oldFirst;
+
+    //Update where the firsts are referenced from
+    oldFirst.prev = first;
+    head.next = first;
 
 
     N++;
@@ -61,64 +66,37 @@ public class Deque<Item> implements Iterable<Item>{
    public void addLast(Item item) // add the item to the end
   {
     if (item == null) throw new java.lang.NullPointerException();
-    Node oldlast = last;
-    last = new Node();
+    Node<Item> oldlast = tail.prev;
+    Node<Item> last = new Node<Item>();
     last.item = item;
-    last.next = null;
+    last.next = tail;
+    last.prev = oldlast;
 
-    if (isEmpty()) first = last;
-    else oldlast.next = last;
-
+    oldlast.next = last;
+    tail.prev = last;
     N++;
   }
 
+  public Item removeFirst() {
+       if (isEmpty()) throw new NoSuchElementException("Deque underflow");
+        Item item = head.next.item;
+        head.next = head.next.next;
+        head.next.prev = head;
+        N--;
+        return item;
+  }
 
-  public Item removeFirst() // remove and return the item from the front
+
+
+  public Item removeLast()
   {
     if (isEmpty()) throw new NoSuchElementException("Stack underflow");
-    Item item = first.item;
-    first = first.next;
+
+    Item item = tail.prev.item;
+    tail.prev = tail.prev.prev; // point to penultimate
+    tail.prev.next = tail;
     N--;
-    if (isEmpty()) last = null;
     return item;
-
-  }
-
-  public Item removeLast() // Remove and return the item from the end
-  {
-    if (isEmpty()) throw new NoSuchElementException("Stack underflow");
-
-    Node oldLast = last;
-
-    if (first == last){
-      first = null;
-      last = null;
-    } else if (first != null){
-        Node newLast = findSecondtoLast();
-        newLast.next = null;
-        last = newLast;
-    } else{
-      last = null;
-    }
-    N--;
-
-    if (oldLast != null){
-      return oldLast.item;
-    } else{
-      return first.item;
-    }
-  }
-
-  private Node findSecondtoLast()
-  {
-
-    Node newLast = first;
-    //Walk through elements until the next element is the last element
-    while (newLast.next != null && newLast.next != last){
-      newLast = newLast.next;
-    }
-
-    return newLast;
   }
 
 
@@ -127,7 +105,7 @@ public class Deque<Item> implements Iterable<Item>{
   { return new ListIterator(); }
 
   private class ListIterator implements Iterator<Item> {
-    private Node current = first;
+    private Node<Item> current = first;
 
     public boolean hasNext() { return current != null; }
     public void remove()
@@ -157,12 +135,13 @@ public class Deque<Item> implements Iterable<Item>{
     System.out.println(dq.removeLast());
   }
 
+
   for (int i = 1; i<300; i++)
     dq.addLast(i);
 
   while(dq.isEmpty() == false)
   {
-    System.out.println(dq.removeFirst() + " " + dq.size());
+    System.out.println(dq.removeFirst());
   }
 
 

@@ -25,13 +25,7 @@ public class RandomizedQueue<Item> implements Iterable<Item>{
     return N == 0;
   }
 
-  private void fullScan()
-  {
-    for (int i =0; i<q.length;i++){
-      System.out.print(i + " ");
-      System.out.println(q[i]);
-    }
-  }
+
 
   //Return the Number of Items on the Queue
   public int size()
@@ -54,7 +48,6 @@ public class RandomizedQueue<Item> implements Iterable<Item>{
   {
     if (N==q.length) resize(2*q.length);
     q[last++] = item;
-    if (last == q.length) last = 0;
     N++;
   }
   //Remove and return a random item
@@ -64,10 +57,18 @@ public class RandomizedQueue<Item> implements Iterable<Item>{
     index = StdRandom.uniform(0,N);
 
     Item item = q[index];
-    q[index] = q[--last];
-    q[last] = null;
+
+    if (first == q.length)
+    {
+      first = 0;
+      last = 0;
+      q[index] = null;
+    }
+    else {
+      q[index] = q[--last];
+      q[last] = null;
+    }
     N--;
-    if (first == q.length) first = 0;
 
     if (N > 0 && N == q.length/4) resize(q.length/2);
     return item;
@@ -93,7 +94,23 @@ public class RandomizedQueue<Item> implements Iterable<Item>{
   //An iterator that randomly chooses the next item
   private class ArrayRandomIterator implements Iterator<Item>{
     private int i = 0;
-    public boolean hasNext() {return N>0;};
+    private int[] indices;
+
+
+    public ArrayRandomIterator(){
+
+      indices = new int[N];
+      for (int j=0; j<indices.length; j++)
+      {
+        indices[j] = j;
+      }
+      StdRandom.shuffle(indices);
+    }
+
+    public boolean hasNext() {
+      return i < N;
+    };
+
     public void remove()
     {
       throw new UnsupportedOperationException();
@@ -101,9 +118,8 @@ public class RandomizedQueue<Item> implements Iterable<Item>{
 
     public Item next(){
       if (!hasNext()) throw new NoSuchElementException();
-      index = StdRandom.uniform(1, N);
-      Item item = q[index];
-      return item;
+      return q[indices[i++]];
+
     }
 
   }
@@ -113,23 +129,9 @@ public class RandomizedQueue<Item> implements Iterable<Item>{
   {
 
     RandomizedQueue rq = new RandomizedQueue();
-
-    for (int i = 0; i<10; i++)
-      rq.enqueue(i);
-
-    for (int i = 0; i<10; i++)
-    {
-        System.out.println(rq.dequeue());
-
-    }
-
-    for (int i = 0; i<100; i++)
-      rq.enqueue(i);
-
-    for (int i = 0; i<10; i++)
-    {
-      System.out.println(rq.dequeue());
-    }
+    rq.enqueue(2);
+    rq.enqueue(3);
+    rq.dequeue();
 
 
   }
