@@ -102,12 +102,17 @@ public class Deque<Item> implements Iterable<Item>{
 
 
   public Iterator<Item> iterator()
-  { return new ListIterator(); }
+  { return new ListIterator(head.next); }
 
   private class ListIterator implements Iterator<Item> {
-    private Node<Item> current = first;
+    private Node<Item> current;
+    private int counter = 0;
 
-    public boolean hasNext() { return current != null; }
+    public ListIterator(Node<Item> first) {
+      current = first;
+    }
+
+    public boolean hasNext() { return counter < N; }
     public void remove()
     {
       throw new java.lang.UnsupportedOperationException();
@@ -117,6 +122,7 @@ public class Deque<Item> implements Iterable<Item>{
       if (!hasNext()) throw new  java.util.NoSuchElementException();
       Item item = current.item;
       current = current.next;
+      counter++;
       return item;
     }
 
