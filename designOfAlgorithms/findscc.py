@@ -9,41 +9,68 @@ We output the sizes of the 5 largest SSCs in teh given graph, in
 decreasing order, separated by commas.
 """
 
-import sys, resource
-#set rescursion limit and stack size limit
-sys.setrecursionlimit(10 ** 6)
-resource.setrlimit(resource.RLIMIT_STACK, (2 ** 29, 2 ** 30))
+import sys
+import resource
+
+
+# Set rescursion limit and stack size limit
+# sys.setrecursionlimit(10 ** 6)
+# resource.setrlimit(resource.RLIMIT_STACK, (2 ** 29, 2 ** 30))
+
+class Tracker(object):
+    """ Keeps track of current parameters"""
+
+    def __init__(self):
+        self.current_time = 0
+        self.current_source = None
+        self.leader = {}
+        self.finish_time = {}
+        self.explored = set()
+
+def dfs(graph_dict, node, tracker):
+    """ Inner loop explores nodes in an SCC recursively.
+
+    Graph is a dict tail: [head_list]
+    """
+
+    tracker.explored.add(node)
+    tracker.leader[node] = tracker.current_source
+    for head in graph_dict[node]:
+        if head not in tracker.explored:
+            dfs(graph_dict, head, tracker)
+    tracker.current_time += 1
+    tracker.finish_time[node] = tracker.current_time
+
+
+def dfs_loop(graph_dict, nodes, tracker):
+    """Outer loop that checks all SCCS."""
+
+    for node in nodes:
+        if node not in tracker.explored:
+            tracker.current_source = node
+            dfs(graph_dict, node, tracker)
 
 def findSSC(data, reverse_data):
-    """Implement the Kosaraju algorithm.
-
-    Pseudo code:
-    1. Create Grev. By design, we do that at read in currently.
-
-    2. Run DFSLoop on Grev and populate finishing_time()
-    for each vertex.
-
-    3. Run DFSLoop on G in decreasing order of finishing_time
-    """
+    """Implement the Kosaraju algorithm."""
 
     # Setup the run index for the first pass
     # During the first pass, we go from N to 1
-    runIndex = []
-    graph_size = len(data)
-    for i in range(1, graph_size+1):
-        runIndex.append(i)
+    tracker1 = Tracker()
+    tracker2 = Tracker()
+    nodes = set()
 
-    fp_time, fp_leader = DFSLoop(reverse_data, runIndex)
+    # Get the set of nodes to run on
+    for tail, head_list in data.items():
+        nodes |= set(head_list)
+        nodes.add(tail)
+    nodes = sorted(list(nodes), reverse=True)
+    dfs_loop(reverse_data, nodes, tracker1)
 
-    FTindex = sorted(fp_time, key=fp_time.__getitem__, reverse=True)
-    sorted(fp_time, key=fp_time.__getitem__, reverse=True)
-    # For the second pass, we run in the order of the
-    # finishing time on the original data
-    final_finishTime, final_leader = DFSLoop(data, FTindex)
-
-    # Now, parse group sizes
-    group_sizes = parseGroups(final_leader)
-    print(group_sizes)
+    # Sort by the finishing time
+    sorted_nodes = sorted(tracker1.finish_time,
+                          key=tracker1.finish_time.get, reverse=True)
+    dfs_loop(data, sorted_nodes, tracker2)
+    print(parseGroups(tracker2.leader))
 
 def parseGroups(leaderDict):
     """Takes the leader output and uses that to find groups.
@@ -64,50 +91,6 @@ def parseGroups(leaderDict):
     sizes.reverse()
 
     return sizes
-
-
-def DFSLoop(graph, runIndex):
-    """The looper over the elements of the graph.
-
-    Inputs:
-        graph --- dictionary with the tails and heads of directed edges in
-                  graph
-        runIndex --- order in which we should run through this algorith (we
-                     include this to allow use to use the finishing time)
-    """
-    global explored, time, finish_time_dic, leader_dic, s
-    explored = []
-    time = 1
-    finish_time_dic = {}
-    leader_dic = {}
-    s = 0
-
-    # Loop through the nodes in the order that was provided.
-    for i in runIndex:
-        if i not in explored:
-            s = i
-            DFS(graph, i)
-            print("Call %s" % i)
-
-    return finish_time_dic, leader_dic
-
-
-def DFS(graph, vertex):
-    """ Runs (recursively) the depth-first search.
-
-    Inputs:
-        graph - N element dictionary with heads and tails
-        vertex -- starting point of search
-    """
-    global explored, time, finish_time_dic, leader_dic, s
-
-    explored.append(vertex)
-    leader_dic[vertex-1] = s
-    for w in graph[vertex]:
-        if w not in explored:
-            DFS(graph, w)
-    time += 1
-    finish_time_dic[vertex] = time
 
 
 def readedgefile(inname):

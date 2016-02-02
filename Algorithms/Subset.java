@@ -16,7 +16,7 @@ public class Subset{
     String inp;
 
     int k = Integer.parseInt(args[0]);
-    RandomizedQueue rq = new RandomizedQueue();
+    RandomizedQueue<String> rq = new RandomizedQueue<String>();
 
 
     while (!StdIn.isEmpty()){
