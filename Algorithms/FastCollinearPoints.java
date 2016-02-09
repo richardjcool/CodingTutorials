@@ -1,15 +1,13 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.*;
 import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdOut;
 
 public class FastCollinearPoints{
 
-
+    private HashMap<Double, List<Point>> foundSeg = new HashMap<>();
     private int nSeg;
-    private LineSegment[] segments;
+    private List<LineSegment> segments = new ArrayList<>();
 
 
     /* Check input for repeated values */
@@ -17,6 +15,9 @@ public class FastCollinearPoints{
         int N = points.length;
         for (int i = 0; i < N; i++){
             for (int j = i+1; j < N ; j++){
+                if (points[i] == null or points[j] == null){
+                    throw new IllegalArgumentException();
+                }
                 if (points[i].compareTo(points[j]) == 0){
                     throw new IllegalArgumentException();
                 }
@@ -27,85 +28,83 @@ public class FastCollinearPoints{
     /* Find all 4 or more colin points */
     public FastCollinearPoints(Point[] points){
 
-        Point[] sortedArray = new Point[points.length];
-        ArrayList<Point> usedPoints = new ArrayList<>();
-
-        nSeg = 0;
-
-
-
-        // auxarray is there so sorting doesn't screw up our indexing
-        for (int i = 0; i < points.length; i++){
-            sortedArray[i] = points[i];
-        }
-
-        ArrayList<LineSegment> foundSeg = new ArrayList<>();
         if (points == null) throw new IllegalArgumentException();
+
+        //Check format of input
+        ArrayList<LineSegment> foundSeg = new ArrayList<>();
         checkDuplicates(points);
 
-        /* Set each p as origin */
-        for (int i = 0; i < points.length; i++){
+        Point[] pnts = new Point[points.length];
+        //Make a copy so we can do sorting wihout changing original order
+        for (int i = 0; i < points.length ; i++)
+            pnts[i] = points[i];
 
-            Arrays.sort(sortedArray, points[i].slopeOrder());
 
-            /*Now, loop through and check to see if i-1, i, and i+1 all have
-            the same slope. If yes, they are colinear */
-            double slope_j, slope_plus, slope_minus;
+        for (Point nodePoint : points){
 
-            for (int j = 1; j < points.length -1; j++){
+          Arrays.sort(pnts, nodePoint.slopeOrder());
+          double slope = 0.0;
+          double prevSlope = Double.NEGATIVE_INFINITY;
+          ArrayList<Point> currentLine = new ArrayList<>();
 
-                    //If this point was utilized in a segment, drop now
+          //Loop through the slopes (can start at 1, since 0 is itself)
+          for (int i = 1; i < points.length; i++)
+          {
+            slope = nodePoint.slopeTo(pnts[i]);
+            if (slope == prevSlope){
+              currentLine.add(pnts[i]);
+            } else {
+              if (currentLine.size() >= 3){
+                //We found 3 co-linear points with nodePoint, add them.
+                currentLine.add(nodePoint);
+                addSegment(currentLine, prevSlope);
+              }
+              currentLine.clear();
+              currentLine.add(pnts[i]);
+            }
+            prevSlope = slope;
+          }
 
-                    slope_j = points[i].slopeTo(sortedArray[j]);
-                    slope_plus = points[i].slopeTo(sortedArray[j+1]);
-                    slope_minus = points[i].slopeTo(sortedArray[j-1]);
-
-                    boolean allUsed;
-                    allUsed = (usedPoints.contains(sortedArray[j]) &&
-                               usedPoints.contains(sortedArray[j-1]) &&
-                               usedPoints.contains(sortedArray[j+1]));
-
-                    if (slope_j == slope_plus &&
-                        slope_j == slope_minus && allUsed == false){
-
-                        //We have a pattern. We don't have to search backward
-                        //Since we're incrementing that way, but lets check higher
-                        int hi = 2;
-                        boolean goFlag = true;
-                        while (j+hi < points.length && goFlag == true){
-                            if (points[i].slopeTo(sortedArray[j+hi]) ==
-                                points[i].slopeTo(sortedArray[j])){
-                                    hi++;
-                                } else {
-                                    goFlag = false;
-                                }
-                        }
-
-                        Point[] subPoint = new Point[hi+2];
-                        subPoint[0] = points[i];
-                        usedPoints.add(subPoint[0]);
-                        for (int k = -1; k < hi; k++){
-                            subPoint[k+2] = sortedArray[j + k];
-                            usedPoints.add(subPoint[k+2]);
-                        }
-                        Arrays.sort(subPoint);
-                        foundSeg.add(new LineSegment(subPoint[0], subPoint[hi+1]));
-                        nSeg++;
-                    }
-           }
-
+          if (currentLine.size() >= 3){
+            currentLine.add(nodePoint);
+            addSegment(currentLine, slope);
+          }
         }
-        segments = foundSeg.toArray(new LineSegment[nSeg]);
     }
+
+    private void addSegment(List<Point> Line, double slope){
+
+        List<Point> endPoints = foundSeg.get(slope);
+        Collections.sort(Line);
+
+        Point startPoint = Line.get(0);
+        Point endPoint = Line.get(Line.size() - 1);
+
+        if (endPoints == null){
+            endPoints = new ArrayList<>();
+            endPoints.add(endPoint);
+            foundSeg.put(slope, endPoints);
+            segments.add(new LineSegment(startPoint, endPoint));
+        } else {
+            for (Point iEndPnt : endPoints){
+                if (iEndPnt.compareTo(endPoint) == 0)  return;
+            }
+            endPoints.add(endPoint);
+            segments.add(new LineSegment(startPoint, endPoint));
+        }
+
+    }
+
+
 
     /* number of segments found */
     public int numberOfSegments(){
-        return segments.length;
+        return segments.size();
     }
 
     /* the line Segments */
     public LineSegment[] segments(){
-        return segments;
+        return segments.toArray(new LineSegment[segments.size()]);
     }
 
     public static void main(String[] args) {
