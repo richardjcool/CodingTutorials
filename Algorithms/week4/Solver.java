@@ -3,11 +3,11 @@ import edu.princeton.cs.algs4.MinPQ;
 import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.StdIn;
 import edu.princeton.cs.algs4.In;
-import edu.princeton.cs.algs4.Queue;
+import edu.princeton.cs.algs4.Stack;
 
 public class Solver{
 
-    private final Queue<Board> boards;
+    private final Stack<Board> boards;
     private int moves;
     private boolean isSolvable;
 
@@ -45,12 +45,12 @@ public class Solver{
 
     // find a solution to the intial board (using A*)
     public Solver(Board initial){
-        boards = new Queue<Board>();
+        boards = new Stack<Board>();
 
         // Check to see if in initial was right
         if (initial.isGoal()) {
             isSolvable = true;
-            this.boards.enqueue(initial);
+            this.boards.push(initial);
             return;
         }
 
@@ -88,10 +88,9 @@ public class Solver{
 
             if (board.isGoal()){
                 isSolvable = true;
-                this.boards.enqueue(board);
                 while (node.previous != null) {
+                    this.boards.push(node.board);
                     node = node.previous;
-                    this.boards.enqueue(node.board);
                 }
                 return;
             }
@@ -133,8 +132,9 @@ public class Solver{
 
     // Sequence of boards in a shortest solution; null if unsolvable
     public Iterable<Board> solution(){
-        if (isSolvable)
+        if (isSolvable){
             return boards;
+        }
         return null;
     }
 
@@ -154,6 +154,7 @@ public class Solver{
         Solver solver = new Solver(initial);
 
         // print solution to standard output
+
         if (!solver.isSolvable())
             StdOut.println("No solution possible");
         else {

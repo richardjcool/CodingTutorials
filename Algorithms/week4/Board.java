@@ -47,7 +47,10 @@ public class Board{
         int distance = 0;
         for (int i = 0; i < N; i++){
             for (int j = 0; j < N; j++){
-                distance = distance + Math.abs(board[i][j] / N - i) + Math.abs(board[i][j] % N - j);
+                int idist = Math.abs((board[i][j]-1) / N - i);
+                int jdist = Math.abs((board[i][j]-1) % N - j);
+                if (board[i][j] != 0)
+                    distance += idist + jdist;
             }
         }
         return distance;
@@ -61,13 +64,13 @@ public class Board{
     // A Board that is obtain by exchanging any pair of blocks
     public Board twin() {
         Board twin = new Board(board);
-        for (int i = 0; i < N; i++){
-            for (int j = 0; j < N; j++){
-                if (board[i][j] != 0 && twin.board[i][j+1] !=0){
-                    twin.swap(i,j,i,j+1);
-                    return twin;
-                }
-            }
+
+        if (twin.board[0][0] != 0 && twin.board[0][1] !=0){
+            twin.board[0][0] = board[0][1];
+            twin.board[0][1] = board[0][0];
+        } else {
+            twin.board[1][0] = board[1][1];
+            twin.board[1][1] = board[1][0];
         }
 
         return twin;
