@@ -88,9 +88,10 @@ public class Solver{
 
             if (board.isGoal()){
                 isSolvable = true;
+                this.boards.push(board);
                 while (node.previous != null) {
-                    this.boards.push(node.board);
                     node = node.previous;
+                    this.boards.push(node.board);
                 }
                 return;
             }
