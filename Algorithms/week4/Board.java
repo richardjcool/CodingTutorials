@@ -1,4 +1,4 @@
-import java.util.Arrays;
+import java.util.*;
 
 public class Board{
     private int[][] board;
@@ -15,10 +15,10 @@ public class Board{
         for (int i = 0; i<N; i++){
             for(int j = 0; j < N; j++){
                 board[i][j] = blocks[i][j];
-                }
             }
         }
     }
+
 
     // Size of board, N (board is NxN)
     public int dimension(){
@@ -27,30 +27,30 @@ public class Board{
 
     // Number of blocks out of place
     public int hamming(){
-    int counter = 0;
-    for (int i = 0; i < N; i++){
-        for (int j = 0; j < N; j++){
-            if ( board[i][j] != N*i+j+1 & board[i][j] != 0){
-                counter++;
+        int counter = 0;
+        for (int i = 0; i < N; i++){
+            for (int j = 0; j < N; j++){
+                if ( board[i][j] != N*i+j+1 & board[i][j] != 0){
+                    counter++;
+                }
             }
         }
+        return counter;
     }
-    return counter;
-
     /*
         Sum of Manhatten distances between blocks and goal.
         Remember manhatten distance is the sum of the vertical
         and horizontal distance from the blocks to their goals).
     */
-    public int manhatten(){
+    public int manhattan(){
 
         int distance = 0;
         for (int i = 0; i < N; i++){
             for (int j = 0; j < N; j++){
-                distance += abs(board[i][j] / N - i) + abs(board[i][j] % N - j);
+                distance = distance + Math.abs(board[i][j] / N - i) + Math.abs(board[i][j] % N - j);
             }
         }
-        return manhatten
+        return distance;
     }
 
     // is this board the goal?
@@ -63,17 +63,19 @@ public class Board{
         Board twin = new Board(board);
         for (int i = 0; i < N; i++){
             for (int j = 0; j < N; j++){
-                if (board[i][j] != 0 && twin[i][j+1] !=0){
+                if (board[i][j] != 0 && twin.board[i][j+1] !=0){
                     twin.swap(i,j,i,j+1);
                     return twin;
                 }
             }
         }
+
+        return twin;
     }
 
     private void swap(int i, int j, int it, int jt){
         if (it < 0 || it >= N || jt < 0 || jt >= N)
-            throw new IllegalArugmentException();
+            throw new IllegalArgumentException();
 
         int holder = board[i][j];
         board[i][j] = board[it][jt];
@@ -108,6 +110,7 @@ public class Board{
                     return N*i+j;
             }
         }
+        return -1;
     }
 
 
@@ -155,7 +158,7 @@ public class Board{
         s.append(N + "\n");
         for (int i = 0; i<N;i++){
             for (int j = 0; j<N; j++){
-                s.append(String.format("%d ", tiles[i][j]));
+                s.append(String.format("%d ", board[i][j]));
             }
             s.append("\n");
         }
