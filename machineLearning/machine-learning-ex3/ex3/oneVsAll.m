@@ -6,7 +6,7 @@ function [all_theta] = oneVsAll(X, y, num_labels, lambda)
 %   logisitc regression classifiers and returns each of these classifiers
 %   in a matrix all_theta, where the i-th row of all_theta corresponds 
 %   to the classifier for label i
-
+4
 % Some useful variables
 m = size(X, 1);
 n = size(X, 2);
