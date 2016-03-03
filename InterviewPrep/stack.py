@@ -28,7 +28,6 @@ if __name__ == "__main__":
     stack.add('abc')
     for x in range(10):
         stack.add(x)
-    
 
     print(stack.count())
     print(stack.pop())

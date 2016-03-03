@@ -4,5 +4,5 @@ def fib(num):
         yield i+1, a
         a, b = b, a+b
 
-for item in fib(25):
+for item in fib(100):
     print(item)
