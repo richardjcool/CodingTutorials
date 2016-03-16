@@ -21,7 +21,7 @@ def find_patch_combos(patches, window):
     for sset in powers:
         time_used.append(sum(sset))
         if sum(sset) > maxval and sum(sset) <= window:
-            maxval = sum(sset)
+            maxval = sum(sset)n
 
     for sset in powers:
         if sum(sset) == maxval:
